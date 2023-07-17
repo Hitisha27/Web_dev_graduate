@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+        integrity="sha512-SOMELONGHASH"
+        crossorigin="anonymous" />
+    <title>Course List</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Course List</h1>
+        <ul class="list-group">
+            <!-- Course list will be dynamically populated here -->
+        </ul>
+    </div>
+
+    <!-- Modal for displaying partner universities -->
+    <div class="modal fade" id="partnerUniversitiesModal" tabindex="-1" aria-labelledby="partnerUniversitiesModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="partnerUniversitiesModalLabel">Partner Universities</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="partnerUniversitiesList">
+                        <!-- Partner universities will be dynamically populated here -->
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch data from the JSON feed
+        fetch('https://www.liverpool.ac.uk/app-data/study-abroad/courses.json')
+            .then(response => response.json())
+            .then(data => {
+                const courseList = document.querySelector('.list-group');
+                const partnerModalList = document.getElementById('partnerUniversitiesList');
+
+                // Iterate over each course and create a list item
+                data.courses.forEach(course => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('list-group-item');
+                    const link = document.createElement('a');
+                    link.innerText = course.name;
+                    link.href = '#';
+                    link.addEventListener('click', () => {
+                        // Clear the modal list before populating with partner universities
+                        partnerModalList.innerHTML = '';
+                        // Populate the modal list with partner universities
+                        course.partner_universities.forEach(partner => {
+                            const partnerListItem = document.createElement('li');
+                            partnerListItem.classList.add('list-group-item');
+                            partnerListItem.innerText = `${partner.name} (${partner.country})`;
+                            partnerModalList.appendChild(partnerListItem);
+                        });
+                        // Show the modal
+                        new bootstrap.Modal(document.getElementById('partnerUniversitiesModal')).show();
+                    });
+                    listItem.appendChild(link);
+                    courseList.appendChild(listItem);
+                });
+            })
+            .catch(error => {
+                console.log('Error:', error);
+            });
+    </script>
+</body>
+
+</html>
